@@ -20,6 +20,13 @@ class HybridLSTMModel:
         self.num_tickers = num_tickers
         self.model = None
         
+    class EpochLogger(tf.keras.callbacks.Callback):
+        def on_epoch_end(self, epoch, logs=None):
+            logs = logs or {}
+            train_loss = logs.get('loss')
+            val_acc = logs.get('val_accuracy')
+            print(f"Epoch {epoch + 1}: Train Loss = {train_loss:.4f}, Val Accuracy = {val_acc:.4f}")
+        
     def build_model(self, lstm_units=[128, 64], dropout_rate=0.2, learning_rate=0.001):
         """Build the hybrid LSTM model"""
         logger.info(f"Building LSTM model with {self.num_features} features and {self.num_tickers} tickers")
@@ -65,24 +72,21 @@ class HybridLSTMModel:
     def get_callbacks(self, patience=10, min_lr=1e-7):
         """Get training callbacks"""
         callbacks = [
-            # Early stopping to prevent overfitting
             EarlyStopping(
                 monitor='val_loss',
                 patience=patience,
                 restore_best_weights=True,
                 verbose=1
             ),
-            
-            # Reduce learning rate when plateau is reached
             ReduceLROnPlateau(
                 monitor='val_loss',
                 factor=0.5,
                 patience=5,
                 min_lr=min_lr,
                 verbose=1
-            )
+            ),
+            self.EpochLogger()
         ]
-        
         return callbacks
     
     def train(self, X_train, y_train, X_val, y_val, 
