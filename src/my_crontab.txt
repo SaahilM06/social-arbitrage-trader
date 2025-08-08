@@ -1,0 +1,2 @@
+*/5 9-16 * * 1-5 /opt/anaconda3/bin/python /Users/saahi/social-arbitrage-trader/src/intraday_data.py >> /Users/saahi/social-arbitrage-trader/logs/cronlog.txt 2>&1
+
